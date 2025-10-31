@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<!-- saved from url=(0085)file:///C:/Users/samban/Downloads/simple_accounting_8_lowstock_per_product%20(1).html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simple Accounting</title>
+  <link href="./Simple Accounting_files/css2" rel="stylesheet">
+  <style>
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --text:#0f172a; --muted:#64748b; --line:#e5e7eb; --primary:#111827; --accent:#111827;
+}
+body.theme-light{--bg:#f6f7fb;--card:#fff;--text:#0f172a;--muted:#64748b;--line:#e5e7eb;--accent:#111827}
+body.theme-dark{--bg:#0b1020;--card:#0f172a;--text:#e5e7eb;--muted:#94a3b8;--line:#1e293b;--accent:#22d3ee}
+body.theme-blue{--bg:#f6f8ff;--card:#ffffff;--text:#0f172a;--muted:#64748b;--line:#e5e7eb;--accent:#2563eb}
+body.theme-gray{--bg:#f5f5f5;--card:#ffffff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#374151}
+body.theme-red{--bg:#fff7f7;--card:#ffffff;--text:#111827;--muted:#6b7280;--line:#f3d6d6;--accent:#dc2626}
+body.theme-green{--bg:#f3fbf6;--card:#ffffff;--text:#0f172a;--muted:#64748b;--line:#d8efe1;--accent:#059669}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans Khmer", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card);z-index:10}
+.brand{font-weight:700}
+.row{display:flex;align-items:center}.gap{gap:8px}.between{justify-content:space-between}.right{text-align:right}.bold{font-weight:700}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px}
+.tab{padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);cursor:pointer}
+.tab.active{background:var(--accent);color:#fff;border-color:transparent}
+.view{display:none;padding:14px}.view.active{display:block}
+.card{background:var(--card);border-radius:16px;box-shadow:0 8px 30px rgba(2,6,23,.06);padding:14px;margin-bottom:14px}
+.card.light{background:rgba(2,6,23,.03)}
+.input{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;width:100%}
+.input.sm{width:auto;min-width:120px}
+.small{font-size:12px}.muted{color:var(--muted)}
+.link{background:none;border:none;color:#2563eb;cursor:pointer;padding:0}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;transition:.2s}
+.btn:hover{opacity:.95;transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn.danger{color:#dc2626;border:1px solid #dc2626;background:transparent}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:10px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
+.grid.two{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.grid.three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.grid.four{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:rgba(2,6,23,.04);border:1px dashed var(--line);padding:10px;border-radius:12px}
+.stat-title{font-size:12px;color:var(--muted)}.stat-val{font-weight:700}
+.error{color:#dc2626;font-size:13px}
+
+/* Modal */
+.modal.hidden{display:none}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal-card{background:var(--card);color:var(--text);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:16px;max-width:700px;width:100%}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) scale(.96);background:var(--accent);color:#fff;padding:10px 14px;border-radius:10px;opacity:0;transition:.2s;z-index:60}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}
+
+.btn.mode-active{background:var(--accent);color:#fff;border-color:transparent}
+#mode-hint{margin-left:6px}
+
+input[readonly]{background:rgba(2,6,23,.04); cursor:not-allowed;}
+
+.stat .stat-val{font-size:18px}
+
+
+
+#dash-kpi .stat{background:rgba(2,6,23,.04)} #dash-kpi .k{font-size:12px;color:var(--muted)} #dash-kpi .v{font-size:20px;font-weight:700}
+
+/* === Print styles for exporting the Report as PDF === */
+@media print {
+  /* Hide everything by default */
+  body * { visibility: hidden; }
+  /* When printing explicitly from our button, show only the report view */
+  body.print-report-only #view-report, 
+  body.print-report-only #view-report * {
+    visibility: visible;
+  }
+  body.print-report-only #view-report {
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%;
+    margin: 0; padding: 0;
+  }
+  /* Optional: hide buttons/controls marked no-print */
+  .no-print { display: none !important; }
+}
+
+
+
+tr.low-stock { background: #ffe8e8 !important; }
+</style>
+</head>
+<body class="theme-light">
+  <header class="topbar">
+    <div class="brand">💼 <span data-i18n="app_name">Simple Accounting</span></div>
+    <div class="row gap">
+      <select id="themeSelect" class="input sm" title="Theme">
+        <option value="light">🌤️ Light</option>
+        <option value="dark">🌙 Dark</option>
+        <option value="blue">💙 Blue</option>
+        <option value="gray">🖤 Gray</option>
+        <option value="red">❤️ Red</option>
+        <option value="green">💚 Green</option>
+      </select>
+      <select id="langSelect" class="input sm" title="Language">
+        <option value="km">ខ្មែរ</option>
+        <option value="en">English</option>
+      </select>
+      <button id="btnExport" class="btn ghost" data-i18n="export">Export</button>
+      <label for="importFile" class="btn ghost" data-i18n="import">Import</label>
+      <input id="importFile" type="file" accept="application/json" style="display:none">
+      <button id="btnReset" class="btn danger ghost" data-i18n="reset">Reset</button>
+    </div>
+    <div class="row gap" id="extra-nav" style="display:none"><button class="btn ghost" data-view="report-all">📊 <span data-i18n="report_all">report_all</span></button></div>
+</header>
+
+  <nav class="tabs">
+    <button class="tab" data-view="dashboard">📊 <span>Dashboard</span></button>
+    <button class="tab" data-view="sales">🧾 <span data-i18n="tab_sales">Sales</span></button>
+    <button class="tab active" data-view="products">📦 <span data-i18n="tab_products">Products</span></button>
+    <button class="tab" data-view="customers">👥 <span data-i18n="tab_customers">Customers</span></button>
+    <button class="tab" data-view="invoices">📄 <span data-i18n="tab_invoices">Invoices</span></button>
+    <button class="tab" data-view="report">📈 <span data-i18n="tab_report">Report</span></button>
+  </nav>
+
+  <section id="view-sales" class="view">
+    <div class="card">
+      <h2>🧾 <span data-i18n="new_invoice">New Invoice</span></h2>
+<div class="row gap" style="margin-bottom:8px">
+  <span class="small muted">Mode:</span>
+  <button id="mode-sale" class="btn ghost">SALE</button>
+  <button id="mode-resell" class="btn ghost">RESELL</button>
+  <span class="small muted" id="mode-hint">Items auto-use SALE price</span>
+</div>
+      <div class="grid four">
+        <div>
+          <label data-i18n="customer">Customer</label>
+          <div class="row gap"><input id="s-customer" class="input" list="s-customer-list" placeholder="Type name/phone/location..."> <datalist id="s-customer-list"></datalist> <input type="hidden" id="s-customer-id">
+            <button id="btnCustomerNew" class="btn ghost" data-i18n="new">New</button>
+          </div>
+          <div id="s-cust-info" class="small muted"></div>
+        </div>
+        <div>
+          <label data-i18n="seller">Seller</label>
+          <input id="s-seller" class="input" placeholder="Name">
+        </div>
+        <div>
+          <label data-i18n="branch">Branch</label>
+          <input id="s-branch" class="input" placeholder="Main">
+        </div>
+        <div>
+          <label data-i18n="invoice_type">Invoice Type</label>
+          <select id="s-type" class="input">
+            <option value="SALE" data-i18n="sale">SALE</option>
+            <option value="RESELL" data-i18n="resell">RESELL</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card light">
+        <div class="row between">
+          <b data-i18n="items">Items</b>
+          <div class="row gap">
+            <input id="barcode" class="input sm" placeholder="Scan/Type barcode">
+            <button id="add-item" class="btn ghost">+ <span data-i18n="add">Add</span></button>
+          </div>
+        </div>
+        <table class="table" id="items">
+          <thead>
+            <tr>
+              <th data-i18n="product">Product</th>
+              <th data-i18n="type" style="display:none">Type</th>
+              <th data-i18n="qty">Qty</th>
+              <th data-i18n="cost">Cost</th>
+              <th data-i18n="price">Price</th>
+              <th data-i18n="line_total">SALE Price</th>
+              <th data-i18n="profit">Profit</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody><tr>
+      <td>
+        <select class="input sel-prod"><option value=""></option><option value="eweuov5v86b" data-sale="22" data-resell="23" data-cost="10" data-stock="3">111</option><option value="xhj4k57t2yi" data-sale="21" data-resell="33" data-cost="10" data-stock="60">សដាសដ</option><option value="h9dvgnyv6l" data-sale="22" data-resell="15" data-cost="5" data-stock="15">222</option></select>
+        <div class="small muted stock">Stock: 0</div>
+      </td>
+      <td style="display:none">
+        <select class="input sel-type"><option value="SALE">SALE</option><option value="RESELL">RESELL</option></select>
+      </td>
+      <td><input class="input qty" type="number" step="1" min="1" value="1"></td>
+      <td><input class="input cost" type="number" step="0.01" value="0.00" title="Auto baseline"></td>
+      <td><input class="input price" type="number" step="0.01" value="0.00"></td>
+      <td class="line">$ 0.00</td>
+      <td class="linep muted">+ $ 0.00</td>
+      <td><button class="btn ghost del">Del</button></td>
+    </tr></tbody>
+          <tfoot>
+            <tr><td colspan="6" class="right"><span data-i18n="subtotal_sale_qty">Subtotal (SALE × Qty)</span></td><td id="subAmount" class="right">$ 0.00</td></tr>
+            <tr><td colspan="6" class="right"><span data-i18n="profit_subtotal">Profit Subtotal</span></td><td id="subProfit" class="right muted">+ $ 0.00</td></tr>
+            <tr>
+              <td colspan="4" class="right" data-i18n="discount">Discount</td>
+              <td colspan="2">
+                <div class="row gap">
+                  <select id="disc-type" class="input sm"><option value="amt">$</option><option value="pct">%</option></select>
+                  <input id="disc" type="number" step="0.01" value="0" class="input sm">
+                </div>
+              </td>
+              <td id="disc-amt" class="right muted">- $ 0.00</td>
+            </tr>
+            <tr><td colspan="6" class="right bold"><span data-i18n="total_sale_minus_discount">TOTAL (Subtotal − Discount)</span></td><td id="grand" class="bold right">$ 0.00</td></tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="card light">
+        <div class="row between"><b data-i18n="payments">Payments</b><button id="add-payment" class="btn ghost">+ <span data-i18n="add">Add</span></button></div>
+        <table class="table" id="payments">
+          <thead><tr><th data-i18n="method">Method</th><th data-i18n="amount">Amount</th><th></th></tr></thead>
+          <tbody><tr><td><select class="input pay-method">
+        <option value="cash">$ Cash</option>
+        <option value="cash-khr">KHR Cash</option>
+        <option value="aba">$ ABA</option>
+        <option value="aba-khr">KHR ABA</option>
+        <option value="acleda">$ ACLEDA</option>
+        <option value="acleda-khr">KHR ACLEDA</option>
+      </select></td>
+      <td><input class="input pay-amt" type="number" step="0.01" value="0.00"></td>
+      <td></td></tr></tbody>
+          <tfoot>
+            <tr><td class="right" data-i18n="paid">Paid</td><td id="paid">$ 0.00</td><td></td></tr>
+            <tr><td class="right" data-i18n="balance">Balance</td><td id="balance" class="bold">$ 0.00</td><td></td></tr>
+          </tfoot>
+        </table>
+        <div class="row gap" style="margin-top:8px">
+          <button id="save" class="btn">💾 <span data-i18n="save_invoice">Save Invoice</span></button>
+          <button id="print" class="btn ghost">🖨️ <span data-i18n="download_pdf">Download PDF</span></button>
+          <span id="s-error" class="error"></span>
+        </div>
+      </div>
+    </div><!-- removed sales summary grid three --><div id="sm-sales" class="stat-val">$ 0.00</div>
+        <div class="stat"><div class="stat-title">Total Profit</div><div id="sm-profit" class="stat-val">+ $ 0.00</div></div>
+        <div class="stat"><div class="stat-title">Invoices</div><div id="sm-count" class="stat-val">0</div></div>
+      
+      <!-- removed sales-tab By Customer card -->
+
+  <div class="row gap">
+        <label class="small muted">Month</label>
+      </div>
+      <div class="row gap">
+        <label class="small muted">Type</label>
+          <option value="ALL">ALL</option>
+          <option value="SALE">SALE</option>
+          <option value="RESELL">RESELL</option>
+        
+      </div>
+    
+
+    
+  
+
+</section>
+
+<section id="view-dashboard" class="view">
+    <div class="card">
+      <h2>📊 Dashboard</h2>
+      <div class="grid four gap" id="dash-kpi" style="margin-top:10px"></div>
+    <div class="card" id="quick-money" style="margin-top:12px">
+      <div class="row gap">
+        <div>
+          <label class="small">Destination</label>
+          <select id="qmi-dest" class="input"><option value="CASH">Cash</option><option value="ABA">ABA</option><option value="ACLEDA">ACLEDA</option></select>
+        </div>
+        <div>
+          <label class="small">Amount</label>
+        <div>
+          <label class="small">Currency</label>
+          <select id="qmi-curr" class="input"><option value="KHR">KHR (៛)</option><option value="USD">USD ($)</option></select>
+        </div>
+        <div>
+          <label class="small">Amount</label>
+          <input id="qmi-amount" class="input" type="number" step="0.01" min="0" placeholder="0.00">
+        </div>
+        <div class="grow">
+          <label class="small">Note</label>
+          <input id="qmi-note" class="input" placeholder="Optional note (e.g., deposit #, who paid)">
+        </div>
+        <div style="align-self:end">
+          <button id="qmi-add" class="btn">Add</button>
+        </div>
+      </div>
+      <div class="small muted" style="margin-top:6px">Quick record of money-in to Cash or Bank.</div>
+      <div id="qmi-balances" class="row gap" style="margin-top:10px"></div>
+      <table class="mt">
+        <thead><tr><th>Date</th><th>Type</th><th>Method</th><th class="right">Amount</th><th>Note</th></tr></thead>
+        <tbody id="qmi-table"></tbody>
+      </table>
+    </div>
+    
+    </div>
+
+    <div class="card light">
+      <div class="row between">
+        <b>Filters</b>
+        <div class="small muted">Set what you want to see — then Apply</div>
+      </div>
+      <div class="grid four">
+        <div>
+          <label>Date From</label>
+          <input id="d-from" type="date" class="input" data-remember="">
+        </div>
+        <div>
+          <label>Date To</label>
+          <input id="d-to" type="date" class="input" data-remember="">
+        </div>
+        <div>
+          <label>Type</label>
+          <select id="d-type" class="input" data-remember="">
+            <option value="ALL">ALL</option>
+            <option value="SALE">SALE</option>
+            <option value="RESELL">RESELL</option>
+          </select>
+        </div>
+        <div>
+          <label>Branch</label>
+          <input id="d-branch" class="input" placeholder="Any" data-remember="">
+        </div>
+      </div>
+      <div class="grid four" style="margin-top:8px">
+        <div>
+          <label>Seller</label>
+          <input id="d-seller" class="input" placeholder="Name..." data-remember="">
+        </div>
+        <div>
+          <label>Customer</label>
+          <input id="d-customer" class="input" placeholder="Name/Phone/Location..." data-remember="">
+        </div>
+        <div>
+          <label>Product keyword</label>
+          <input id="d-product" class="input" placeholder="Find in invoice items..." data-remember="">
+        </div>
+        <div style="align-self:end">
+          <button id="d-apply" class="btn">Apply</button>
+          <button id="d-clear" class="btn ghost">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid two">
+      <div class="card">
+        <div class="row between">
+          <b>Recent Invoices</b>
+          <span id="d-inv-count" class="small muted">0 found</span>
+        </div>
+        <table class="table" id="d-invoices">
+          <thead><tr>
+            <th>#</th><th>Date/Time</th><th>No.</th><th>Customer</th><th>Seller</th><th>Branch</th><th class="right">Total</th><th class="right">Profit</th><th class="right">Status</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="row between">
+          <b>Top Products (by sales)</b>
+          <span id="d-top-count" class="small muted">0</span>
+        </div>
+        <table class="table" id="d-top">
+          <thead><tr>
+            <th>Product</th><th class="right">Qty</th><th class="right">Sales</th><th class="right">Profit</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card light">
+      <b>Stock Alerts</b>
+      <table class="table" id="d-stock">
+        <thead><tr><th>Product</th><th class="right">Qty</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div></section>
+
+
+  <section id="view-products" class="view active">
+    <div class="card">
+      <div class="row between">
+        <h2>📦 <span data-i18n="products">Products</span></h2>
+        <div class="row gap">
+          <input id="p-search" class="input" placeholder="Search...">
+          <label class="small">ស្តុក ≤</label>
+          <input id="p-threshold" class="input sm" type="number" step="1" min="0" value="0">
+          <label class="small"><input type="checkbox" id="p-low-only"> តែស្តុកទាប</label>
+          <button id="p-add" class="btn">+ <span data-i18n="add_product">Add Product</span></button>
+        </div>
+      </div>
+      <table class="table" id="p-table">
+        <thead><tr>
+          <th data-i18n="product">Product</th>
+          <th>Barcode</th>
+          <th data-i18n="sale_price">SALE</th>
+          <th data-i18n="resell_price">RESELL</th>
+          <th data-i18n="cost">Cost</th>
+          <th data-i18n="qty">Qty</th>
+          <th>Low Stock</th>
+          <th></th>
+        </tr></thead>
+        <tbody><tr class=""><td>111</td><td>22</td><td>$ 22.00</td><td>$ 23.00</td><td>$ 10.00</td><td>3</td><td>✅ OK</td><td><button class="btn ghost" data-edit="eweuov5v86b">Edit</button> <button class="btn ghost" data-del="eweuov5v86b">Del</button></td></tr><tr class=""><td>សដាសដ</td><td>ាដសាសដា</td><td>$ 21.00</td><td>$ 33.00</td><td>$ 10.00</td><td>60</td><td>✅ OK</td><td><button class="btn ghost" data-edit="xhj4k57t2yi">Edit</button> <button class="btn ghost" data-del="xhj4k57t2yi">Del</button></td></tr><tr class="low-stock"><td>222</td><td></td><td>$ 22.00</td><td>$ 15.00</td><td>$ 5.00</td><td>15</td><td>🔴 LOW</td><td><button class="btn ghost" data-edit="h9dvgnyv6l">Edit</button> <button class="btn ghost" data-del="h9dvgnyv6l">Del</button></td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="view-customers" class="view">
+    <div class="card">
+      <div class="row between">
+        <h2>👥 <span data-i18n="customers">Customers</span></h2>
+        <div class="row gap"><input id="c-search" class="input" placeholder="..."><button id="c-new" class="btn">+ <span data-i18n="new_customer">Customer</span></button></div>
+      </div>
+      <table class="table" id="c-table"><thead><tr><th data-i18n="name">Name</th><th data-i18n="phone">Phone</th><th data-i18n="location">Location</th><th></th></tr></thead><tbody><tr><td>123123</td><td>2</td><td>22</td><td><button class="btn ghost" data-edit="ppjo4842x79">Edit</button> <button class="btn ghost" data-del="ppjo4842x79">Del</button></td></tr><tr><td>333</td><td>33</td><td>11</td><td><button class="btn ghost" data-edit="vbgsc9245u">Edit</button> <button class="btn ghost" data-del="vbgsc9245u">Del</button></td></tr><tr><td>5465</td><td>4564</td><td>454</td><td><button class="btn ghost" data-edit="vp4clok32x">Edit</button> <button class="btn ghost" data-del="vp4clok32x">Del</button></td></tr></tbody></table>
+    </div>
+  </section>
+
+  <section id="view-invoices" class="view">
+    <div class="card">
+      <div class="row between">
+        <h2>📄 <span data-i18n="invoices">Invoices</span></h2>
+        <div class="row gap">
+          <input id="inv-search" class="input" placeholder="# / customer / seller / branch">
+          <select id="inv-status" class="input sm">
+            <option value="ALL">All</option>
+            <option value="PAID">PAID</option>
+            <option value="UNPAID">UNPAID</option>
+          </select>
+          <button class="btn ghost invfilter" data-f="ALL">All</button>
+          <button class="btn ghost invfilter" data-f="SALE">SALE</button>
+          <button class="btn ghost invfilter" data-f="RESELL">RESELL</button>
+        </div>
+      </div>
+      <div class="small">Sort: <button class="link" data-sort="date">Date</button> · <button class="link" data-sort="total">Total</button> · <button class="link" data-sort="status">Status</button></div>
+      <table class="table" id="inv-table"><thead><tr><th>#</th><th data-i18n="date">Date</th><th>No.</th><th data-i18n="seller">Seller</th><th data-i18n="branch">Branch</th><th data-i18n="status">Status</th><th data-i18n="total">total</th><th data-i18n="paid">Paid</th><th data-i18n="balance">Balance</th><th>Action</th><th></th></tr></thead><tbody><tr>
+      <td>1</td>
+      <td>11/1/2025, 4:39:52 AM</td>
+      <td>S-0023</td>
+      <td>22</td>
+      <td>22</td>
+      <td>PAID</td>
+      <td class="right">$ 330.00</td>
+      <td class="right">$ 330.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="qgvq8bxixe">Print</button></td>
+      <td><button class="btn ghost" data-paid="qgvq8bxixe">Mark Paid</button></td>
+    </tr><tr>
+      <td>2</td>
+      <td>11/1/2025, 4:39:23 AM</td>
+      <td>S-0022</td>
+      <td>22</td>
+      <td>22</td>
+      <td>PAID</td>
+      <td class="right">$ 660.00</td>
+      <td class="right">$ 660.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="hbm2fcq09qf">Print</button></td>
+      <td><button class="btn ghost" data-paid="hbm2fcq09qf">Mark Paid</button></td>
+    </tr><tr>
+      <td>3</td>
+      <td>11/1/2025, 4:21:55 AM</td>
+      <td>S-0021</td>
+      <td></td>
+      <td></td>
+      <td>UNPAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td class="right">$ 22.00</td>
+      <td><button class="btn ghost" data-print="9co3iymc14">Print</button></td>
+      <td><button class="btn ghost" data-paid="9co3iymc14">Mark Paid</button></td>
+    </tr><tr>
+      <td>4</td>
+      <td>11/1/2025, 4:10:27 AM</td>
+      <td>S-0020</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="lfdxzf43bz">Print</button></td>
+      <td><button class="btn ghost" data-paid="lfdxzf43bz">Mark Paid</button></td>
+    </tr><tr>
+      <td>5</td>
+      <td>11/1/2025, 4:10:27 AM</td>
+      <td>S-0019</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="az2rxsz05dj">Print</button></td>
+      <td><button class="btn ghost" data-paid="az2rxsz05dj">Mark Paid</button></td>
+    </tr><tr>
+      <td>6</td>
+      <td>11/1/2025, 4:10:27 AM</td>
+      <td>S-0018</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="ynlsa14xos8">Print</button></td>
+      <td><button class="btn ghost" data-paid="ynlsa14xos8">Mark Paid</button></td>
+    </tr><tr>
+      <td>7</td>
+      <td>11/1/2025, 4:10:27 AM</td>
+      <td>S-0017</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="k7f9bmpj1a">Print</button></td>
+      <td><button class="btn ghost" data-paid="k7f9bmpj1a">Mark Paid</button></td>
+    </tr><tr>
+      <td>8</td>
+      <td>11/1/2025, 4:10:27 AM</td>
+      <td>S-0016</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="dr0snxffqp">Print</button></td>
+      <td><button class="btn ghost" data-paid="dr0snxffqp">Mark Paid</button></td>
+    </tr><tr>
+      <td>9</td>
+      <td>11/1/2025, 4:10:26 AM</td>
+      <td>S-0015</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="stqh8xmxm7b">Print</button></td>
+      <td><button class="btn ghost" data-paid="stqh8xmxm7b">Mark Paid</button></td>
+    </tr><tr>
+      <td>10</td>
+      <td>11/1/2025, 4:10:26 AM</td>
+      <td>S-0014</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="t6bur2uonbd">Print</button></td>
+      <td><button class="btn ghost" data-paid="t6bur2uonbd">Mark Paid</button></td>
+    </tr><tr>
+      <td>11</td>
+      <td>11/1/2025, 4:10:26 AM</td>
+      <td>S-0013</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="szpcternk8">Print</button></td>
+      <td><button class="btn ghost" data-paid="szpcternk8">Mark Paid</button></td>
+    </tr><tr>
+      <td>12</td>
+      <td>11/1/2025, 4:10:26 AM</td>
+      <td>S-0012</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="9xaaznq3p49">Print</button></td>
+      <td><button class="btn ghost" data-paid="9xaaznq3p49">Mark Paid</button></td>
+    </tr><tr>
+      <td>13</td>
+      <td>11/1/2025, 4:10:25 AM</td>
+      <td>S-0011</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="k2jyvn3s8an">Print</button></td>
+      <td><button class="btn ghost" data-paid="k2jyvn3s8an">Mark Paid</button></td>
+    </tr><tr>
+      <td>14</td>
+      <td>11/1/2025, 4:10:25 AM</td>
+      <td>S-0010</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="e686nifv64">Print</button></td>
+      <td><button class="btn ghost" data-paid="e686nifv64">Mark Paid</button></td>
+    </tr><tr>
+      <td>15</td>
+      <td>11/1/2025, 4:10:25 AM</td>
+      <td>S-0009</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="exqqhlseh9b">Print</button></td>
+      <td><button class="btn ghost" data-paid="exqqhlseh9b">Mark Paid</button></td>
+    </tr><tr>
+      <td>16</td>
+      <td>11/1/2025, 4:10:21 AM</td>
+      <td>S-0008</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="8jiob3c9qdk">Print</button></td>
+      <td><button class="btn ghost" data-paid="8jiob3c9qdk">Mark Paid</button></td>
+    </tr><tr>
+      <td>17</td>
+      <td>11/1/2025, 4:10:20 AM</td>
+      <td>S-0007</td>
+      <td></td>
+      <td></td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="2afk37ztd9l">Print</button></td>
+      <td><button class="btn ghost" data-paid="2afk37ztd9l">Mark Paid</button></td>
+    </tr><tr>
+      <td>18</td>
+      <td>11/1/2025, 4:07:42 AM</td>
+      <td>S-0002</td>
+      <td>sd</td>
+      <td>ew</td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="cgroi6cjdb">Print</button></td>
+      <td><button class="btn ghost" data-paid="cgroi6cjdb">Mark Paid</button></td>
+    </tr><tr>
+      <td>19</td>
+      <td>11/1/2025, 3:30:46 AM</td>
+      <td>S-0001</td>
+      <td>222</td>
+      <td>11</td>
+      <td>PAID</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 22.00</td>
+      <td class="right">$ 0.00</td>
+      <td><button class="btn ghost" data-print="5itpu6d20gi">Print</button></td>
+      <td><button class="btn ghost" data-paid="5itpu6d20gi">Mark Paid</button></td>
+    </tr></tbody></table>
+    </div>
+  </section>
+
+  
+  <section id="view-report" class="view" style="display:none;">
+    <h2>📊 Report</h2>
+    <div class="row gap no-print" style="margin:12px 0;">
+      <label>Month: <input type="month" id="r-month"></label>
+      <label>Type:
+        <select id="r-type">
+          <option value="ALL">All</option>
+          <option value="SALE">Sale</option>
+          <option value="RETURN">Return</option>
+          <option value="PAID">Paid</option>
+          <option value="UNPAID">Unpaid</option>
+        </select>
+      </label>
+      <button id="btn-export-pdf" class="btn">Export to PDF</button>
+    </div>
+    <canvas id="chart" width="640" height="300" style="max-width:100%;"></canvas>
+    <h3>Payment Summary</h3>
+    <table class="tbl" id="payments-summary">
+      <thead><tr><th>Method</th><th>Amount</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <h3>Report by Customer</h3>
+    <table class="tbl" id="report-by-customer">
+      <thead><tr><th>Customer</th><th>Total</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+
+  <div id="modal-mask" class="modal hidden">
+    <div class="modal-card">
+      <h3 id="m-title">New Product</h3>
+      <div id="m-body"><div class="grid four"><input id="pm-name" class="input" placeholder="Name *" value=""><input id="pm-barcode" class="input" placeholder="Barcode" value=""><input id="pm-sale" type="number" step="0.01" class="input" placeholder="PRICE *" value="0"><input id="pm-resell" type="number" step="0.01" class="input" placeholder="RESELL *" value="0"></div><div class="grid three" style="margin-top:8px"><input id="pm-cost" type="number" step="0.01" class="input" placeholder="COST *" value="0"><input id="pm-qty" type="number" step="1" class="input" placeholder="QTY *" value="0"><input id="pm-low" type="number" step="1" class="input" placeholder="Low threshold" value="0"><div class="small muted" style="align-self:center">Profit = price - cost</div></div></div>
+      <div class="row gap" style="margin-top:10px">
+        <button id="m-save" class="btn" data-i18n="save">Save</button>
+        <button id="m-cancel" class="btn ghost" data-i18n="cancel">Cancel</button>
+        <span id="m-error" class="error"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+// Simple Accounting — Clean Fixed Edition
+const NS = 'sa_clean_v1_';
+const K = (k)=> NS+k;
+const read = (k,f)=>{ try{return JSON.parse(localStorage.getItem(K(k))||JSON.stringify(f));}catch{return f;} };
+const write=(k,v)=>localStorage.setItem(K(k), JSON.stringify(v));
+const uid = ()=> Math.random().toString(36).slice(2);
+const money = (n)=>'$ '+(Math.round((Number(n)||0)*100)/100).toFixed(2);
+const byId = (id)=>document.getElementById(id);
+let LOW_STOCK_THRESHOLD = read('low_threshold',5);
+
+const valById = (id)=>{ const el = document.getElementById(id); return el? (el.value??'').toString() : ''; };
+
+// Global sale/resell mode
+let CURRENT_MODE = 'SALE'; // 'SALE' || 'RESELL'
+
+// Method labels (for Payments & Report)
+const METHOD_LABELS = {
+  CASH_KHR: 'Cash (KHR)',
+  CASH_USD: 'Cash (USD)',
+  BANK_ABA_KHR: 'Bank ABA (KHR)',
+  BANK_ABA_USD: 'Bank ABA (USD)',
+  BANK_ACLEDA_KHR: 'Bank ACLEDA (KHR)',
+  BANK_ACLEDA_USD: 'Bank ACLEDA (USD)',
+  MOBILE_MONEY: 'Mobile Money',
+  OTHER: 'Other'
+};
+
+// Initial data
+['products','customers','invoices','invSeq','invSeqSale','invSeqResell','theme','lang'].forEach(k=>{ if(read(k,null)===null){ write(k, (k==='invSeq' || k==='invSeqSale' || k==='invSeqResell')?0:(k==='theme'?'light':(k==='lang'?'km':[]))); } });
+
+// i18n
+const I18N = {
+  km: { app_name:'កម្មវិធីគណនេយ្យសាមញ្ញ', export:'នាំចេញ', import:'នាំចូល', reset:'កំណត់ឡើងវិញ',
+    tab_sales:'លក់', tab_products:'ទំនិញ', tab_customers:'អតិថិជន', tab_invoices:'វិក្កយបត្រ', tab_report:'របាយការណ៍',
+    new_invoice:'វិក្កយបត្រ​ថ្មី', customer:'អតិថិជន', new:'ថ្មី', seller:'អ្នកលក់', branch:'សាខា', invoice_type:'ប្រភេទវិក្កយបត្រ',
+    sale:'លក់រាយ', resell:'លក់បន្ត', items:'ធាតុ', add:'បន្ថែម', product:'ទំនិញ', type:'ប្រភេទ', qty:'ចំនួន', price:'តម្លៃលក់', cost:'តម្លៃដើម',
+    line_total:'តម្លៃ SALE', profit:'ចំណេញ', discount:'បញ្ចុះតម្លៃ', payments:'ការបង់ប្រាក់', method:'វិធី', amount:'ចំនួន',
+    paid:'បានបង់', balance:'នៅសល់', save_invoice:'រក្សាទុកវិក្កយបត្រ', download_pdf:'ទាញយក PDF',
+    products:'ទំនិញ', add_product:'បន្ថែមទំនិញ', sale_price:'តម្លៃ SALE', resell_price:'តម្លៃ RESELL', status:'ស្ថានភាព',
+    customers:'អតិថិជន', new_customer:'អតិថិជន', name:'ឈ្មោះ', phone:'ទូរស័ព្ទ', location:'ទីតាំង',
+    invoices:'វិក្កយបត្រ', date:'ថ្ងៃខែ', report:'របាយការណ៍', month:'ខែ', total_sales:'សរុបការលក់', total_profit:'សរុបចំណេញ',
+    save:'រក្សាទុក', cancel:'បោះបង់' , subtotal_sale_qty:'សរុប (តម្លៃ SALE × ចំនួន)', profit_subtotal:'ចំណេញសរុប', discount_sale:'បញ្ចុះតម្លៃ (លើ SALE)', total_sale_minus_discount:'សរុបចុងក្រោយ (សរុប − បញ្ចុះតម្លៃ)'},
+  en: { app_name:'Simple Accounting', export:'Export', import:'Import', reset:'Reset',
+    tab_sales:'Sales', tab_products:'Products', tab_customers:'Customers', tab_invoices:'Invoices', tab_report:'Report',
+    new_invoice:'New Invoice', customer:'Customer', new:'New', seller:'Seller', branch:'Branch', invoice_type:'Invoice Type',
+    sale:'SALE', resell:'RESELL', items:'Items', add:'Add', product:'Product', type:'Type', qty:'Qty', price:'Price', cost:'Cost',
+    line_total:'SALE Price', profit:'Profit', discount:'Discount', payments:'Payments', method:'Method', amount:'Amount',
+    paid:'Paid', balance:'Balance', save_invoice:'Save Invoice', download_pdf:'Download PDF',
+    products:'Products', add_product:'Add Product', sale_price:'SALE', resell_price:'RESELL', status:'Status',
+    customers:'Customers', new_customer:'Customer', name:'Name', phone:'Phone', location:'Location',
+    invoices:'Invoices', date:'Date', report:'Report', month:'Month', total_sales:'Total Sales', total_profit:'Total Profit',
+    save:'Save', cancel:'Cancel' , subtotal_sale_qty:'Subtotal (SALE × Qty)', profit_subtotal:'Profit Subtotal', discount_sale:'Discount (on SALE)', total_sale_minus_discount:'TOTAL (Subtotal − Discount)'}
+};
+function applyI18n(){
+  const lang = read('lang','km');
+  document.documentElement.lang = (lang==='km'?'km':'en');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    const txt = I18N[lang][key] || key;
+    el.textContent = txt;
+  });
+}
+const langSelect = byId('langSelect'); langSelect.value = read('lang','km');
+langSelect.onchange = ()=>{ write('lang', langSelect.value); applyI18n(); };
+
+// Theme
+const themeSelect = byId('themeSelect'); themeSelect.value = read('theme','light');
+function applyTheme(){ const t = read('theme','light'); document.body.className = ''; document.body.classList.add('theme-'+t); }
+themeSelect.onchange = ()=>{ write('theme', themeSelect.value); applyTheme(); };
+applyTheme(); applyI18n();
+
+// Toast
+function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.classList.add('show'),10); setTimeout(()=>{t.classList.remove('show'); setTimeout(()=>t.remove(),200);},2000); }
+
+// Mode toggle UI
+const modeSaleBtn = document.getElementById('mode-sale');
+const modeResellBtn = document.getElementById('mode-resell');
+function applyModeUI(){
+  if (!modeSaleBtn || !modeResellBtn) return;
+  modeSaleBtn.classList.toggle('mode-active', CURRENT_MODE==='SALE');
+  modeResellBtn.classList.toggle('mode-active', CURRENT_MODE==='RESELL');
+  const hint = document.getElementById('mode-hint');
+  if (hint) hint.textContent = CURRENT_MODE==='SALE' ? 'Items auto-use SALE price' : 'Items auto-use RESELL price';
+}
+if (modeSaleBtn){ modeSaleBtn.onclick = ()=>{ CURRENT_MODE='SALE'; applyModeUI(); try{ recalc && recalc(); }catch(e){} } }
+if (modeResellBtn){ modeResellBtn.onclick = ()=>{ CURRENT_MODE='RESELL'; applyModeUI(); try{ recalc && recalc(); }catch(e){} } }
+
+
+function syncRow(tr){
+  const sel = tr.querySelector('.sel-prod'); const opt = sel && sel.selectedOptions ? sel.selectedOptions[0] : null;
+  const type = tr.querySelector('.sel-type') ? tr.querySelector('.sel-type').value : (CURRENT_MODE || 'SALE');
+  if (!opt){ tr.querySelector('.price').value = '0.00'; tr.querySelector('.cost').value = '0.00'; tr.querySelector('.stock').textContent='Stock: -'; return; }
+  const ds = opt.dataset || {};
+  const sale = Number(ds.sale || 0);
+  const resell = Number(ds.resell || 0);
+  const cost = Number(ds.cost || 0);
+  const stock = Number(ds.stock || 0);
+  tr.querySelector('.price').value = sale.toFixed(2); // editable
+  const baseline = Number(tr.querySelector('.cost')?.value || 0);
+  tr.querySelector('.cost').value = (baseline||0).toFixed(2); // readonly
+  const stockEl = tr.querySelector('.stock'); stockEl.textContent = 'Stock: ' + (isNaN(stock)? '-' : stock); if(!isNaN(stock)) { stockEl.classList.toggle('muted', stock<=LOW_STOCK_THRESHOLD); }
+}
+
+function recalc(){
+  let subtotal = 0, profitTotal = 0;
+  document.querySelectorAll('#items tbody tr').forEach(tr=>{
+    const qty = Number(tr.querySelector('.qty')?.value || 0);
+    const price = Number(tr.querySelector('.price')?.value || 0);
+    const baseline = Number(tr.querySelector('.cost')?.value || 0);
+    const line = Math.round(qty*price*100)/100;
+    const p = Math.round(qty*(price - baseline)*100)/100;
+    tr.querySelector('.line').textContent = money(line);
+    tr.querySelector('.linep').textContent = (p>=0?'+ ':'- ')+money(Math.abs(p));
+    subtotal = Math.round((subtotal + line)*100)/100;
+    profitTotal = Math.round((profitTotal + p)*100)/100;
+  });
+  let d = Number(byId('disc')?.value || 0);
+  if (byId('disc-type') && byId('disc-type').value==='pct'){
+    d = Math.round(subtotal*(d/100)*100)/100;
+    if (d>subtotal) d=subtotal;
+  }
+  const total = Math.max(0, Math.round((subtotal - d)*100)/100);
+  let paid = 0;
+  document.querySelectorAll('.pay-amt').forEach(i=> paid += Number(i.value||0));
+  paid = Math.round(paid*100)/100;
+  const bal = Math.max(0, Math.round((total - paid)*100)/100);
+
+  byId('disc-amt').textContent = '- '+money(d);
+  byId('grand').textContent = money(total);
+  byId('paid').textContent = money(paid);
+  byId('balance').textContent = money(bal);
+  const sp = byId('subProfit'); if (sp) sp.textContent = (profitTotal>=0?'+ ':'- ')+money(Math.abs(profitTotal));
+  const sa = byId('subAmount'); if (sa) sa.textContent = money(subtotal);
+}
+// Tabs
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.onclick=()=>{ document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById('view-'+btn.dataset.view).classList.add('active');
+    if (btn.dataset.view==='report') { drawReport(); paymentsSummary(getReportMonth()); }
+    if (btn.dataset.view==='invoices') renderInvoices();
+    if (btn.dataset.view==='products') renderProducts();
+    if (btn.dataset.view==='customers') renderCustomers();
+    if (btn.dataset.view==='sales') bindSales();
+    if (btn.dataset.view==='dashboard') { initDashboard(); }
+  };
+});
+
+// Export / Import / Reset
+byId('btnExport').onclick = ()=>{
+  const data = {}; ['products','customers','invoices','invSeq','invSeqSale','invSeqResell','theme','lang'].forEach(k=>data[k]=read(k,null));
+  const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})); a.download='simple_accounting_backup.json'; a.click();
+  toast('Exported backup.json');
+};
+byId('importFile').onchange = async (e)=>{
+  const f = e.target.files?.[0]; if (!f) return; const txt = await f.text();
+  try{ const d = JSON.parse(txt); for (const k of ['products','customers','invoices','invSeq','theme','lang']){ if (d[k]!==undefined) write(k,d[k]); } toast('Imported'); } catch { toast('Invalid JSON'); }
+  e.target.value=''; renderProducts(); renderCustomers(); renderInvoices(); bindSales(); drawReport(); paymentsSummary(getReportMonth()); reportByCustomer(getReportMonth());
+};
+byId('btnReset').onclick = ()=>{ if(!confirm('Clear all data?')) return; ['products','customers','invoices','invSeq','invSeqSale','invSeqResell','theme','lang'].forEach(k=>localStorage.removeItem(K(k))); location.reload(); };
+
+// Customers
+function renderCustomers(){
+  const list = read('customers',[]);
+  const q = (byId('c-search').value||'').toLowerCase();
+  const show = list.filter(c=> (c.name||'').toLowerCase().includes(q) || (c.phone||'').toLowerCase().includes(q) || (c.location||'').toLowerCase().includes(q));
+  const tbody = document.querySelector('#c-table tbody');
+  tbody.innerHTML = (show.length? show: list).map(c=>'<tr><td>'+ (c.name||'') +'</td><td>'+ (c.phone||'') +'</td><td>'+ (c.location||'') +'</td><td><button class="btn ghost" data-edit="'+c.id+'">Edit</button> <button class="btn ghost" data-del="'+c.id+'">Del</button></td></tr>').join('') || '<tr><td colspan="4">No data</td></tr>';
+  tbody.querySelectorAll('[data-edit]').forEach(b=> b.onclick=()=> openCustomerModal(b.dataset.edit));
+  tbody.querySelectorAll('[data-del]').forEach(b=> b.onclick=()=> { if(!confirm('Delete customer?')) return; write('customers', read('customers').filter(x=>x.id!==b.dataset.del)); renderCustomers(); bindSales(); });
+}
+document.getElementById('c-search').oninput = renderCustomers;
+document.getElementById('c-new').onclick = ()=> openCustomerModal();
+function openCustomerModal(id){
+  const m = document.getElementById('modal-mask');
+  document.getElementById('m-error').textContent='';
+  document.getElementById('m-title').textContent = id? 'Edit Customer' : 'New Customer';
+  const c = id? read('customers',[]).find(x=>x.id===id) : {name:'',phone:'',location:''};
+  document.getElementById('m-body').innerHTML = '<div class="grid three"><input id="cm-name" class="input" placeholder="Name" value="'+(c?.name||'')+'"/><input id="cm-phone" class="input" placeholder="Phone" value="'+(c?.phone||'')+'"/><input id="cm-location" class="input" placeholder="Location" value="'+(c?.location||'')+'"/></div>';
+  m.classList.remove('hidden');
+  document.getElementById('m-cancel').onclick = ()=> m.classList.add('hidden');
+  document.getElementById('m-save').onclick = ()=>{
+    const name = valById('cm-name').trim(); if(!name){ document.getElementById('m-error').textContent='Enter name'; return; }
+    const phone = valById('cm-phone').trim(); const location = valById('cm-location').trim();
+    const list = read('customers',[]);
+    if (id){ const i = list.findIndex(x=>x.id===id); if(i>=0) list[i] = {...list[i], name, phone, location}; }
+    else { list.push({id:uid(), name, phone, location}); }
+    write('customers', list); m.classList.add('hidden'); renderCustomers(); bindSales();
+  };
+}
+
+// Products
+function renderProducts(){
+  const list = read('products',[]);
+  const q = (byId('p-search').value||'').toLowerCase();
+  let low = LOW_STOCK_THRESHOLD;
+  const lowOnly = (byId('p-low-only') && byId('p-low-only').checked) || read('low_filter', false);
+  let show = list.filter(p=> (p.name||'').toLowerCase().includes(q) || (p.barcode||'').toLowerCase().includes(q) );
+  if (lowOnly) { show = show.filter(p=> Number(p.qty||0) <= Number(p.low_threshold ?? LOW_STOCK_THRESHOLD)); }
+  const tbody = document.querySelector('#p-table tbody');
+  
+  tbody.innerHTML = (show.length? show:list).map(p=>{
+return `<tr class="${(p.qty||0)<=Number(p.low_threshold ?? LOW_STOCK_THRESHOLD) ? 'low-stock' : ''}"><td>${p.name}</td><td>${p.barcode||''}</td><td>${money(p.price_sale||0)}</td><td>${money(p.price_resell||0)}</td><td>${money(p.cost||0)}</td><td>${p.qty||0}</td><td>${(p.qty||0)<=Number(p.low_threshold ?? LOW_STOCK_THRESHOLD) ? '🔴 LOW' : '✅ OK'}</td><td><button class="btn ghost" data-edit="${p.id}">Edit</button> <button class="btn ghost" data-del="${p.id}">Del</button></td></tr>`;
+  }).join('') || '<tr><td colspan="8">No data</td></tr>';
+  tbody.querySelectorAll('[data-del]').forEach(b=> b.onclick=()=>{ if(!confirm('Delete product?')) return; write('products', read('products').filter(x=>x.id!==b.dataset.del)); renderProducts(); });
+  tbody.querySelectorAll('[data-edit]').forEach(b=> b.onclick=()=> openProductModal(b.dataset.edit));
+}
+document.getElementById('p-search').oninput = renderProducts;
+// Low stock controls init
+const pThreshold = byId('p-threshold');
+if (pThreshold){ pThreshold.value = LOW_STOCK_THRESHOLD; pThreshold.oninput = ()=>{ LOW_STOCK_THRESHOLD = Math.max(0, Math.floor(Number(pThreshold.value||0))); write('low_threshold', LOW_STOCK_THRESHOLD); renderProducts(); }; }
+const pLowOnly = byId('p-low-only');
+if (pLowOnly){ pLowOnly.checked = read('low_filter', false); pLowOnly.onchange = ()=>{ write('low_filter', pLowOnly.checked); renderProducts(); }; }
+
+document.getElementById('p-add').onclick = ()=> openProductModal();
+function openProductModal(id){
+  const m = document.getElementById('modal-mask'); const p = id? read('products',[]).find(x=>x.id===id) : {name:'', price_sale:0, price_resell:0, cost:0, qty:0, barcode:''};
+  document.getElementById('m-error').textContent='';
+  document.getElementById('m-title').textContent = id? 'Edit Product' : 'New Product';
+  document.getElementById('m-body').innerHTML = '<div class="grid four"><input id="pm-name" class="input" placeholder="Name *" value="'+(p?.name||'')+'"/><input id="pm-barcode" class="input" placeholder="Barcode" value="'+(p?.barcode||'')+'"/><input id="pm-sale" type="number" step="0.01" class="input" placeholder="PRICE *" value="'+(p?.price_sale||0)+'"/><input id="pm-resell" type="number" step="0.01" class="input" placeholder="RESELL *" value="'+(p?.price_resell||0)+'"/></div><div class="grid three" style="margin-top:8px"><input id="pm-cost" type="number" step="0.01" class="input" placeholder="COST *" value="'+(p?.cost||0)+'"/><input id="pm-qty" type="number" step="1" class="input" placeholder="QTY *" value="'+(p?.qty||0)+'"/><input id="pm-low" type="number" step="1" class="input" placeholder="Low threshold" value="'+(p?.low_threshold??LOW_STOCK_THRESHOLD)+'"/><div class="small muted" style="align-self:center">Profit = price - cost</div></div>'
+  m.classList.remove('hidden');
+  document.getElementById('m-cancel').onclick = ()=> m.classList.add('hidden');
+  document.getElementById('m-save').onclick = ()=>{
+    const name = document.getElementById('pm-name').value.trim(); if(!name) { document.getElementById('m-error').textContent='Enter name'; return; }
+    const item = {
+      id: id || uid(),
+      name,
+      barcode: document.getElementById('pm-barcode').value.trim(),
+      price_sale: Number(document.getElementById('pm-sale').value||0),
+      price_resell: Number(document.getElementById('pm-resell').value||0),
+      cost: Number(document.getElementById('pm-cost').value||0),
+      qty: Math.max(0, Math.floor(Number(document.getElementById('pm-qty').value||0))),
+      low_threshold: Math.max(0, Math.floor(Number(document.getElementById('pm-low').value||LOW_STOCK_THRESHOLD)))
+    };
+    const list = read('products',[]);
+    if (id){ const i = list.findIndex(x=>x.id===id); if(i>=0) list[i] = item; }
+    else { list.push(item); }
+    write('products', list); m.classList.add('hidden'); renderProducts(); bindSales();
+  };
+}
+
+// Sales
+
+
+
+function bindSales(){
+  const thCost = document.querySelector('#items thead th[data-i18n="cost"]');
+  if (thCost) thCost.textContent = 'តម្លៃលក់បន្ត';
+  const thPrice = document.querySelector('#items thead th[data-i18n="price"]');
+  if (thPrice) thPrice.textContent = 'តម្លៃលក់';
+  if (typeof applyModeUI==='function') applyModeUI();
+
+  // Ensure containers exist
+  const itemsBodyLocal = document.querySelector('#items tbody');
+  if (!itemsBodyLocal) return;
+
+  // --- Customer input + datalist ---
+  const custInput  = byId('s-customer');
+  const custHidden = byId('s-customer-id');
+  const custList   = byId('s-customer-list');
+  const custInfo   = byId('s-cust-info');
+  const btnCustNew = byId('btnCustomerNew');
+  if (btnCustNew) btnCustNew.onclick = ()=> openCustomerModal();
+  
+
+  const allCustomers = read('customers', []);
+
+  function renderCustomerList(q=''){
+    const t = (q||'').toLowerCase();
+    const filtered = !t ? allCustomers : allCustomers.filter(c=>
+      (c.name||'').toLowerCase().includes(t) || (c.phone||'').toLowerCase().includes(t) || (c.location||'').toLowerCase().includes(t)
+    );
+    if (custList){
+      custList.innerHTML = filtered.slice(0,100).map(c=>
+        `<option value="${(c.name||'(No name)')}${c.phone?(' · '+c.phone):''}${c.location?(' · '+c.location):''}"></option>`
+      ).join('');
+    }
+  }
+
+  function bestMatch(text){
+    const t = (text||'').trim().toLowerCase(); if(!t) return null;
+    const exact = allCustomers.find(c=> (c.name||'').toLowerCase()===t || (c.phone||'').toLowerCase()===t);
+    if (exact) return exact;
+    const starts = allCustomers.filter(c=> (c.name||'').toLowerCase().startsWith(t) || (c.phone||'').toLowerCase().startsWith(t) || (c.location||'').toLowerCase().startsWith(t));
+    if (starts.length===1) return starts[0];
+    const contains = allCustomers.filter(c=> ((c.name||'')+' '+(c.phone||'')+' '+(c.location||'')).toLowerCase().includes(t));
+    if (contains.length===1) return contains[0];
+    return null;
+  }
+
+  function showInfo(c){
+    if (!custInfo) return;
+    custInfo.textContent = c ? `📞 ${c.phone||'-'}  ·  📍 ${c.location||'-'}` : '';
+  }
+
+  renderCustomerList('');
+
+  if (allCustomers.length && custInput && !custInput.value){
+    custInput.value = allCustomers[0].name || '';
+    custHidden && (custHidden.value = allCustomers[0].id || '');
+    showInfo(allCustomers[0]);
+  }
+
+  if (custInput){
+    custInput.oninput = ()=>{
+      renderCustomerList(custInput.value);
+      const m = bestMatch(custInput.value);
+      if (m){
+        custHidden && (custHidden.value = m.id);
+        showInfo(m);
+      } else {
+        custHidden && (custHidden.value = '');
+        showInfo(null);
+      }
+    };
+  }
+}
+// Add item row
+  const itemsBody = document.querySelector('#items tbody');
+const payBody = document.querySelector('#payments tbody');
+function addItemRow(prodId){
+    const tr = document.createElement('tr');
+    const prods = read('products',[]);
+    const prodOpts = prods.map(p=>{
+      const sale = (p.sale ?? p.price_sale ?? p.price ?? 0);
+      const resell = (p.resell ?? p.price_resell ?? 0);
+      const cost = (p.cost ?? p.price_cost ?? p.cost_price ?? 0);
+      const stock = (p.qty ?? p.stock ?? p.quantity ?? 0);
+      const name = (p.name ?? p.title ?? '[no name]');
+      const id = (p.id ?? p.sku ?? name);
+      return `<option value="${id}" data-sale="${sale}" data-resell="${resell}" data-cost="${cost}" data-stock="${stock}">${name}</option>`;
+    }).join('');
+    tr.innerHTML = `
+      <td>
+        <select class="input sel-prod"><option value=""></option>${prodOpts}</select>
+        <div class="small muted stock">Stock: -</div>
+      </td>
+      <td style="display:none">
+        <select class="input sel-type"><option value="SALE">SALE</option><option value="RESELL">RESELL</option></select>
+      </td>
+      <td><input class="input qty" type="number" step="1" min="1" value="1"/></td>
+      <td><input class="input cost" type="number" step="0.01" value="0.00"  title="Auto baseline"/></td>
+      <td><input class="input price" type="number" step="0.01" value="0.00"/></td>
+      <td class="line">$ 0.00</td>
+      <td class="linep muted">+ $ 0.00</td>
+      <td><button class="btn ghost del">Del</button></td>
+    `;
+    itemsBody.appendChild(tr);
+
+    // Default mode
+    const typeSel = tr.querySelector('.sel-type'); typeSel.value = CURRENT_MODE || 'SALE';
+
+    // If prodId provided, select it
+    const sel = tr.querySelector('.sel-prod');
+    if (prodId) sel.value = prodId;
+    // Sync immediately
+    syncRow(tr);
+    recalc();
+
+    // Wiring
+    sel.onchange = ()=>{ syncRow(tr); recalc(); };
+    typeSel.onchange = ()=>{ syncRow(tr); recalc(); };
+    tr.querySelector('.qty').oninput = ()=>{ const stockTxt = tr.querySelector('.stock')?.textContent||''; const m = stockTxt.match(/(\d+)/); const stock = m? Number(m[1]): NaN; let q = Number(tr.querySelector('.qty').value||0); if(!isNaN(stock) && q>stock){ q = stock; tr.querySelector('.qty').value = q; toast('Not enough stock'); } recalc(); };
+    tr.querySelector('.price').oninput = recalc;
+    tr.querySelector('.cost').oninput = recalc;
+    tr.querySelector('.del').onclick = ()=>{ tr.remove(); recalc(); };
+  }
+
+  // Payment row
+  function addPaymentRow(){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><select class="input pay-method">
+        <option value="cash">$ Cash</option>
+        <option value="cash-khr">KHR Cash</option>
+        <option value="aba">$ ABA</option>
+        <option value="aba-khr">KHR ABA</option>
+        <option value="acleda">$ ACLEDA</option>
+        <option value="acleda-khr">KHR ACLEDA</option>
+      </select></td>
+      <td><input class="input pay-amt" type="number" step="0.01" value="0.00"/></td>
+      <td></td>`;
+    (document.querySelector('#payments tbody')||payBody).appendChild(tr);
+    tr.querySelector('.pay-amt').oninput = recalc;
+  }
+
+  // Add initial rows if empty
+  if (!itemsBody.querySelector('tr')) addItemRow();
+  if (!document.querySelector('#payments tbody tr')) addPaymentRow();
+
+  
+  // Discount listeners
+  if (byId('disc')) byId('disc').oninput = recalc;
+  if (byId('disc-type')) byId('disc-type').onchange = recalc;
+  recalc();
+  // Expose
+  window.addItemRow = addItemRow;
+  window.addPaymentRow = addPaymentRow;
+
+
+// --- Update product stock by subtracting sold quantities ---
+function updateStock(items){
+  if (!Array.isArray(items) || !items.length) return;
+  const prods = read('products',[]) || [];
+  const map = new Map(prods.map(p=>[(p.id ?? p.sku ?? p.name ?? ''), p]));
+  items.forEach(it=>{
+    const pid = it.productId || it.id || '';
+    const p = map.get(pid);
+    if (p){
+      const cur = Number(p.qty ?? p.stock ?? 0);
+      const next = Math.max(0, Math.round((cur - Number(it.qty||0))*100)/100);
+      p.qty = next;
+    }
+  });
+  write('products', prods);
+}
+
+// --- Save current sales form as an invoice ---
+function buildInvoiceFromForm(){
+  // Customer
+  const customerId = (byId('s-customer-id')?.value || '').trim();
+  const customerName = (byId('s-customer')?.value || '').trim();
+  // Meta
+  const seller = (byId('s-seller')?.value || '').trim();
+  const branch = (byId('s-branch')?.value || '').trim();
+  const invType = (byId('s-type')?.value || CURRENT_MODE || 'SALE');
+
+  // Items
+  const items = [];
+  let subtotal = 0, profitTotal = 0;
+  document.querySelectorAll('#items tbody tr').forEach(tr=>{
+    const prodOpt = tr.querySelector('.sel-prod')?.selectedOptions?.[0];
+    const prodId = prodOpt ? prodOpt.value : '';
+    const prodName = prodOpt ? prodOpt.textContent : '';
+    const qty = Number(tr.querySelector('.qty')?.value || 0);
+    const price = Number(tr.querySelector('.price')?.value || 0);
+    const baseline = Number(tr.querySelector('.cost')?.value || 0);
+    if (prodId && qty>0){
+      const amount = Math.round(qty*price*100)/100;
+      const profit = Math.round(qty*(price-baseline)*100)/100;
+      items.push({productId:prodId, name:prodName, qty, price, baseline, amount, profit});
+      subtotal = Math.round((subtotal + amount)*100)/100;
+      profitTotal = Math.round((profitTotal + profit)*100)/100;
+    }
+  });
+
+  // Discount
+  let disc = Number(byId('disc')?.value || 0);
+  const discType = byId('disc-type')?.value || 'amt';
+  if (discType==='pct'){
+    disc = Math.round(subtotal*(disc/100)*100)/100;
+    if (disc>subtotal) disc=subtotal;
+  }
+  const total = Math.max(0, Math.round((subtotal - disc)*100)/100);
+
+  // Payments
+  const METHOD_MAP = {
+    'cash':'CASH_USD',
+    'cash-khr':'CASH_KHR',
+    'aba':'BANK_ABA_USD',
+    'aba-khr':'BANK_ABA_KHR',
+    'acleda':'BANK_ACLEDA_USD',
+    'acleda-khr':'BANK_ACLEDA_KHR'
+  };
+  const payments = [];
+  let paid = 0;
+  document.querySelectorAll('#payments tbody tr').forEach(tr=>{
+    const val = (tr.querySelector('.pay-method')?.value || '').toLowerCase();
+    const amt = Number(tr.querySelector('.pay-amt')?.value || 0);
+    if (amt>0){
+      const method = METHOD_MAP[val] || 'OTHER';
+      payments.push({method, amount: Math.round(amt*100)/100});
+      paid = Math.round((paid + amt)*100)/100;
+    }
+  });
+  const balance = Math.max(0, Math.round((total - paid)*100)/100);
+  const status = (paid>=total && total>0) ? 'PAID' : (paid>0 ? 'PARTIAL' : 'UNPAID');
+
+  // Invoice number/sequence
+  const seqKey = invType==='RESELL' ? 'invSeqResell' : 'invSeqSale';
+  let seq = Number(read(seqKey,0) || 0) + 1;
+  write(seqKey, seq);
+  const invNo = (invType==='RESELL'?'R-':'S-') + String(seq).padStart(4,'0');
+
+  // Build invoice object
+  return {
+    id: uid(),
+    invNo,
+    date: new Date().toISOString().slice(0,10),
+    datetime: new Date().toISOString(),
+    invType,
+    customerId,
+    customer: customerName,
+    seller,
+    branch,
+    items,
+    subtotal,
+    discount: disc,
+    total,
+    payments,
+    paid,
+    balance,
+    profit: profitTotal,
+    status
+  };
+}
+
+// Attach Save & Print handlers once on Sales bind
+if (document.getElementById('save') && !document.getElementById('save')._bound){
+  document.getElementById('save').onclick = ()=>{
+  const custId = (byId('s-customer-id')?.value||'').trim();
+  const custNm = (byId('s-customer')?.value||'').trim();
+  if (!custNm){ byId('s-error').textContent='Enter customer first'; return; }
+  // If typed name not in list, we already offered quick-create on blur/Enter; ensure we have an id, else create now
+  if (!custId){
+    const list = read('customers',[]);
+    let m = list.find(c=> (c.name||'').toLowerCase()===custNm.toLowerCase());
+    if (!m){ m = {id: uid(), name: custNm, phone:'', location:''}; list.push(m); write('customers', list); }
+    byId('s-customer-id').value = m.id;
+  }
+const inv = buildInvoiceFromForm();
+    if (!inv.items.length){ byId('s-error').textContent = 'Add at least 1 item'; return; }
+    // Validate stock availability
+    const prods = read('products',[])||[]; const map = new Map(prods.map(p=>[(p.id ?? p.sku ?? p.name ?? ''), Number(p.qty ?? p.stock ?? 0)]));
+    for (const it of inv.items){ const have = map.get(it.productId)||0; if (it.qty>have){ byId('s-error').textContent='Not enough stock for '+(it.name||it.productId); return; } }
+    byId('s-error').textContent='';
+    const list = read('invoices',[]);
+    list.unshift(inv); // add to top
+    write('invoices', list);
+    updateStock(inv.items);
+    toast('Saved: '+inv.invNo);
+    renderProducts && renderProducts();
+    bindSales && bindSales();
+    renderInvoices && renderInvoices();
+  };
+  document.getElementById('save')._bound = true;
+}
+if (document.getElementById('print') && !document.getElementById('print')._bound){
+  document.getElementById('print').onclick = ()=>{
+    const inv = buildInvoiceFromForm();
+    // Do not persist; just open print view of the built invoice
+    // Temporarily push then print then remove
+    const list = read('invoices',[]);
+    list.unshift(inv); write('invoices', list);
+    try{ printInvoice && printInvoice(inv.id); } finally {
+      // remove temp
+      const cur = read('invoices',[]).filter(x=>x.id!==inv.id);
+      write('invoices', cur);
+    }
+  };
+  document.getElementById('print')._bound = true;
+}
+
+
+
+
+// Invoices
+let INV_FILTER='ALL'; let INV_SORT={by:'date',dir:'desc'};
+function renderInvoices(){
+  const invs = read('invoices',[]).map(i=> (i.datetime? i : {...i, datetime: (i.date? new Date(i.date+'T00:00:00').toISOString(): new Date().toISOString()) }));
+  const q = (byId('inv-search').value||'').toLowerCase();
+  const statusSel = byId('inv-status').value;
+  let show = invs.filter(i=> INV_FILTER==='ALL'? true : (i.invType||'SALE')===INV_FILTER);
+  if (statusSel!=='ALL') show = show.filter(i=> (i.status||((i.balance||0)>0?'UNPAID':'PAID'))===statusSel);
+  if (q) show = show.filter(i=>{
+    const hay = (i.invNo+' '+(i.customer||'')+' '+(i.customer_phone||'')+' '+(i.seller||'')+' '+(i.branch||'')+' '+(i.notes||'')).toLowerCase();
+    return hay.includes(q);
+  });
+  show.sort((a,b)=>{ const dir = INV_SORT.dir==='asc'?1:-1;
+    switch(INV_SORT.by){
+      case 'total': return dir*((a.total||0)-(b.total||0));
+      case 'status': return dir*((a.status||'').localeCompare(b.status||''));
+      default: return dir*(new Date(a.datetime)-new Date(b.datetime));
+    }
+  });
+  const tbody = document.querySelector('#inv-table tbody');
+  tbody.innerHTML = show.map((i,idx)=>{
+    const bal = Math.max(0, (i.balance!=null? i.balance : ((i.total||0)-(i.paid||0))));
+    const status = i.status || (bal>0 ? 'UNPAID' : 'PAID');
+    return `<tr>
+      <td>${idx+1}</td>
+      <td>${new Date(i.datetime).toLocaleString()}</td>
+      <td>${i.invNo||''}</td>
+      <td>${i.seller||''}</td>
+      <td>${i.branch||''}</td>
+      <td>${status}</td>
+      <td class="right">$ ${(i.total||0).toFixed(2)}</td>
+      <td class="right">$ ${(i.paid||0).toFixed(2)}</td>
+      <td class="right">$ ${bal.toFixed(2)}</td>
+      <td><button class="btn ghost" data-print="${i.id}">Print</button></td>
+      <td><button class="btn ghost" data-paid="${i.id}">Mark Paid</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="11">No data</td></tr>';
+  tbody.querySelectorAll('[data-print]').forEach(b=> b.onclick=()=> printInvoice(b.dataset.print));
+  tbody.querySelectorAll('[data-paid]').forEach(b=> b.onclick=()=> openMarkPaidModal(b.dataset.paid));
+}
+
+document.querySelectorAll('[data-sort]').forEach(b=> b.onclick=()=>{
+  const by = b.dataset.sort;
+  if (INV_SORT.by===by) INV_SORT = {by, dir:(INV_SORT.dir==='asc'?'desc':'asc')};
+  else INV_SORT = {by, dir:'desc'};
+  renderInvoices();
+});
+byId('inv-search').oninput = renderInvoices;
+byId('inv-status').onchange = renderInvoices;
+document.querySelectorAll('.invfilter').forEach(b=> b.onclick=()=>{ INV_FILTER = b.dataset.f; renderInvoices(); });
+function openMarkPaidModal(invId){
+  const list = read('invoices',[]);
+  const idx = list.findIndex(x=>x.id===invId);
+  if (idx<0) return;
+  const inv = list[idx];
+  const remaining = Math.max(0, Math.round((inv.total - (inv.paid||0))*100)/100);
+  const m = document.getElementById('modal-mask');
+  document.getElementById('m-title').textContent = 'Mark as Paid';
+  document.getElementById('m-error').textContent='';
+  document.getElementById('m-body').innerHTML = '<div class="grid two"><div><label>Method</label><select id="mp-method" class="input"><option value="CASH_KHR">Cash (KHR)</option><option value="CASH_USD">Cash (USD)</option><option value="BANK_ABA_KHR">Bank ABA (KHR)</option><option value="BANK_ABA_USD">Bank ABA (USD)</option><option value="BANK_ACLEDA_KHR">Bank ACLEDA (KHR)</option><option value="BANK_ACLEDA_USD">Bank ACLEDA (USD)</option><option value="MOBILE_MONEY">Mobile Money</option><option value="OTHER">Other</option></select></div><div><label>Amount</label><input id="mp-amount" class="input" type="number" step="0.01" value="'+remaining.toFixed(2)+'"/><div class="small muted">Remaining balance: '+remaining.toFixed(2)+'</div></div></div>';
+  m.classList.remove('hidden');
+  document.getElementById('m-cancel').onclick = ()=> m.classList.add('hidden');
+  document.getElementById('m-save').onclick = ()=>{
+    const method = document.getElementById('mp-method').value;
+    let amt = Number(document.getElementById('mp-amount').value||0);
+    if (amt<=0){ document.getElementById('m-error').textContent='Amount must be > 0'; return; }
+    inv.payments = Array.isArray(inv.payments)? inv.payments : [];
+    inv.payments.push({method, amount: amt});
+    inv.paid = Math.round(((inv.paid||0) + amt)*100)/100;
+    inv.balance = Math.max(0, Math.round((inv.total - inv.paid)*100)/100);
+    if (inv.paid >= inv.total){ inv.paid = inv.total; inv.balance = 0; inv.status = 'PAID'; }
+    list[idx] = inv; write('invoices', list);
+    m.classList.add('hidden'); renderInvoices();
+    toast('Marked as PAID: '+inv.invNo);
+  };
+}
+
+
+
+function printInvoice(id){
+  const inv = read('invoices',[]).find(x=>x.id===id); if(!inv) return;
+  const rows = (inv.items||[]).map((it,idx)=>{
+    return `<tr>
+      <td>${idx+1}</td>
+      <td>${it.name || ''} (${it.rowType || ''})</td>
+      <td class="right">${it.qty || 0}</td>
+      <td class="right">${money(it.price || 0)}</td>
+      <td class="right">${money(it.cost || 0)}</td>
+      <td class="right">${money(it.total || (Number(it.qty||0)*Number(it.price||0)))}</td>
+      <td class="right">+ ${money(it.profit || (Number(it.qty||0)*(Number(it.price||0)-Number(it.baseline||it.cost||0))))}</td>
+    </tr>`;
+  }).join('');
+
+  const payRows = ((inv.payments||[]).length
+    ? inv.payments.map(p=> `<tr><td colspan="5" class="right">${METHOD_LABELS[p.method]||p.method}</td><td class="right" colspan="2">${money(p.amount||0)}</td></tr>`).join('')
+    : '<tr><td colspan="7">No payments</td></tr>');
+
+  const css = 'body{font-family:"Noto Sans Khmer", system-ui, Segoe UI, Arial, Roboto, sans-serif;padding:16px} table{width:100%;border-collapse:collapse} th,td{border:1px solid #ccc;padding:6px;text-align:left} .right{text-align:right}';
+
+  const html = `<!doctype html>
+  <html><head><meta charset="utf-8"><title>${inv.invNo||''}</title><style>${css}</style></head>
+  <body>
+    <h2>Invoice ${inv.invNo||''}</h2>
+    <div><b>Date:</b> ${new Date(inv.datetime).toLocaleString()}</div>
+    <div><b>Customer:</b> ${inv.customer||''} — 📞 ${inv.customerPhone||'-'} — 📍 ${inv.customerLocation||'-'}</div>
+    <div><b>Seller:</b> ${inv.seller||'-'} — <b>Branch:</b> ${inv.branch||'-'}</div>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Item</th><th class="right">Qty</th><th class="right">Price</th><th class="right">Cost</th><th class="right">Total</th><th class="right">Profit</th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr><td colspan="6" class="right">Subtotal</td><td class="right">${money(inv.subtotal||0)}</td></tr>
+        <tr><td colspan="6" class="right">Discount</td><td class="right">- ${money(inv.discount||0)}</td></tr>
+        <tr><td colspan="6" class="right"><b>TOTAL</b></td><td class="right"><b>${money(inv.total||0)}</b></td></tr>
+        <tr><td colspan="7"><b>Payments</b></td></tr>
+        ${payRows}
+        <tr><td colspan="6" class="right">Paid</td><td class="right">${money(inv.paid||0)}</td></tr>
+        <tr><td colspan="6" class="right">Balance</td><td class="right">${money(inv.balance||0)}</td></tr>
+        <tr><td colspan="6" class="right">Profit</td><td class="right">+ ${money(inv.profit||0)}</td></tr>
+      </tfoot>
+    </table>
+    <script>window.onload=()=>{ try{ window.print(); }catch(e){} };<\/script>
+  </body></html>`;
+
+  let w = null; try{ w = window.open('','_blank','width=900,height=900'); }catch(e){}
+  if (w && w.document){ w.document.write(html); w.document.close(); }
+  else {
+    const blob = new Blob([html], {type:'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (inv.invNo||'invoice') + ".html";
+    a.click();
+  }
+}
+
+
+// Hook: open dashboard tab
+(function(){
+  const tabBtn = Array.from(document.querySelectorAll('.tab')).find(b=> b.dataset.view==='dashboard');
+  if (tabBtn && !tabBtn._dashBound){
+    tabBtn._dashBound = true;
+    // also ensure country i18n unchanged; dashboard uses English labels intentionally simple
+  }
+})();
+
+// === Export to PDF (via Print) ===
+(function attachExportPdf() {
+  function ready(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+  ready(function(){
+    var btn = document.getElementById('btn-export-pdf');
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      // Add a class to limit print area to the report view
+      document.body.classList.add('print-report-only');
+      setTimeout(function(){
+        window.print();
+        // Remove the class after print
+        document.body.classList.remove('print-report-only');
+      }, 50);
+    });
+  });
+})();
+
+
+
+function initDashboard(){
+  try {
+    // --- Low Stock table ---
+    const prods = read('products',[]) || [];
+    const low = (typeof LOW_STOCK_THRESHOLD!=='undefined') ? LOW_STOCK_THRESHOLD : 5;
+    const lows = prods.filter(p=> (Number(p.qty||p.stock||0) <= low));
+    const stBody = document.querySelector('#d-stock tbody');
+    if (stBody){
+      stBody.innerHTML = (
+  lows.map(p=> `<tr><td>${p.name||'(No name)'}</td><td class="right">${Number(p.qty||p.stock||0)}</td></tr>`).join('')
+) || '<tr><td colspan="2">No low stock</td></tr>';
+}
+
+  // --- Quick Money In (Cash/Bank) ---
+  try {
+    // Read existing sources
+    const ledger = read('ledger',[]) || [];
+    const invs = read('invoices',[]) || [];
+    const pays = invs.flatMap(i=> (i.payments||[]));
+
+    // Helper to sum by predicate
+    const sum = arr => arr.reduce((s,x)=> s + Number(x||0), 0);
+
+    // Normalize method/currency
+    function mc(v){ return String(v||'').toUpperCase(); }
+
+    // From invoice payments (if they have currency, use it; else default USD)
+    const pay = {ABA:{KHR:0,USD:0}, ACLEDA:{KHR:0,USD:0}, CASH:{KHR:0,USD:0}};
+    pays.forEach(p=>{
+      const m = mc(p.method);
+      const c = mc(p.currency||p.curr||'USD');
+      if (pay[m] && (c==='KHR'||c==='USD')) pay[m][c] += Number(p.amount||0);
+    });
+
+    // From ledger deposits (we add currency to widget; older records may not have -> default USD)
+    const dep = {ABA:{KHR:0,USD:0}, ACLEDA:{KHR:0,USD:0}, CASH:{KHR:0,USD:0}};
+    ledger.forEach(x=>{
+      if (x.type==='DEPOSIT'){
+        const m = mc(x.method);
+        const c = mc(x.currency||x.curr||'USD');
+        if (dep[m] && (c==='KHR'||c==='USD')) dep[m][c] += Number(x.amount||0);
+      }
+    });
+
+    const bal = {ABA:{KHR:0,USD:0}, ACLEDA:{KHR:0,USD:0}, CASH:{KHR:0,USD:0}};
+    (['ABA','ACLEDA','CASH']).forEach(a=> (['KHR','USD']).forEach(c=> { bal[a][c] = (pay[a][c] + dep[a][c]); }));
+
+    // Render 6 balances
+    const balBox = byId('qmi-balances');
+    if (balBox){
+      balBox.innerHTML = `
+        <div class="stat"><div class="k">ABA (៛)</div><div class="v">${bal.ABA.KHR.toLocaleString()}</div></div>
+        <div class="stat"><div class="k">ABA ($)</div><div class="v">$ ${bal.ABA.USD.toFixed(2)}</div></div>
+        <div class="stat"><div class="k">ACLEDA (៛)</div><div class="v">${bal.ACLEDA.KHR.toLocaleString()}</div></div>
+        <div class="stat"><div class="k">ACLEDA ($)</div><div class="v">$ ${bal.ACLEDA.USD.toFixed(2)}</div></div>
+        <div class="stat"><div class="k">CASH (៛)</div><div class="v">${bal.CASH.KHR.toLocaleString()}</div></div>
+        <div class="stat"><div class="k">CASH ($)</div><div class="v">$ ${bal.CASH.USD.toFixed(2)}</div></div>
+      `;
+    }
+
+    // Render ledger table (show account + currency)
+    const tbody = byId('qmi-table');
+    if (tbody){
+      const rows = ledger.slice().reverse().slice(0,50).map(x=> `
+        <tr>
+          <td>${new Date(x.datetime||Date.now()).toLocaleString()}</td>
+          <td>${x.type||''}</td>
+          <td>${(x.method||'').toUpperCase()} · ${(x.currency||'USD').toUpperCase()}</td>
+          <td class="right">${(Number(x.amount||0)).toFixed(2)}</td>
+          <td>${x.note||''}</td>
+        </tr>`).join('');
+      tbody.innerHTML = rows || '<tr><td colspan="5">No records</td></tr>';
+    }
+
+    // Wire Add button
+    const btn = byId('qmi-add');
+    if (btn){
+      btn.onclick = ()=>{
+        const method = (byId('qmi-dest')?.value || 'CASH').toUpperCase();
+        const currency = (byId('qmi-curr')?.value || 'USD').toUpperCase();
+        const amount = Number(byId('qmi-amount')?.value || 0);
+        const note = (byId('qmi-note')?.value || '').trim();
+        if (!amount || amount<=0){ alert('Enter amount'); return; }
+        const list = read('ledger',[]) || [];
+        list.push({id: uid(), type:'DEPOSIT', method, currency, amount, note, datetime: Date.now()});
+        write('ledger', list);
+        byId('qmi-amount').value = ''; byId('qmi-note').value = '';
+        initDashboard();
+      };
+    }
+    } catch(e){ console.warn('Quick Money widget failed', e); }
+    const kpi = document.getElementById('dash-kpi');
+    if (kpi){
+      const invs = read('invoices',[]) || [];
+      const totalSales = invs.reduce((s,i)=> s + (Number(i.total)||0), 0);
+      const totalProfit = invs.reduce((s,i)=> s + (Number(i.profit)||0), 0);
+      const count = invs.length;
+      kpi.innerHTML = [
+        `<div class="stat"><div class="stat-title k">Total Sales</div><div class="stat-val v">$ ${totalSales.toFixed(2)}</div></div>`,
+        `<div class="stat"><div class="stat-title k">Total Profit</div><div class="stat-val v">$ ${totalProfit.toFixed(2)}</div></div>`,
+        `<div class="stat"><div class="stat-title k">Invoices</div><div class="stat-val v">${count}</div></div>`,
+        `<div class="stat"><div class="stat-title k">Low Stock</div><div class="stat-val v">${lows.length}</div></div>`
+      ].join('');
+    }
+
+    // --- Recent Invoices (simple) ---
+    const invTable = document.querySelector('#d-invoices tbody');
+    if (invTable){
+      const invs = (read('invoices',[]) || []).slice().sort((a,b)=> new Date(b.datetime||b.date||0) - new Date(a.datetime||a.date||0)).slice(0,50);
+      invTable.innerHTML = invs.map((i,idx)=>{
+        const bal = Math.max(0, (i.balance!=null? i.balance : ((i.total||0)-(i.paid||0))));
+        const status = i.status || (bal>0 ? 'UNPAID' : 'PAID');
+        return `<tr>
+          <td>${idx+1}</td>
+          <td>${new Date(i.datetime||i.date).toLocaleString()}</td>
+          <td>${i.invNo||''}</td>
+          <td>${i.customer||''}</td>
+          <td>${i.seller||''}</td>
+          <td>${i.branch||''}</td>
+          <td class="right">$ ${(i.total||0).toFixed(2)}</td>
+          <td class="right">$ ${(i.profit||0).toFixed(2)}</td>
+          <td class="right">${status}</td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="9">No invoices</td></tr>';
+      const cnt = document.getElementById('d-inv-count'); if (cnt) cnt.textContent = invs.length + ' found';
+    }
+
+    // --- Top Products ---
+    const topBody = document.querySelector('#d-top tbody');
+    if (topBody){
+      const invs = read('invoices',[]) || [];
+      const agg = {};
+      invs.forEach(inv=> (inv.items||[]).forEach(it=>{
+        const k = it.name || it.productId || '(No name)';
+        if (!agg[k]) agg[k] = {qty:0, sales:0, profit:0};
+        agg[k].qty += Number(it.qty||0);
+        agg[k].sales += Number(it.amount||it.total|| (Number(it.qty||0)*Number(it.price||0)) || 0);
+        agg[k].profit += Number(it.profit|| (Number(it.qty||0)*(Number(it.price||0)-Number(it.baseline||0))) || 0);
+      }));
+      const rows = Object.entries(agg).sort((a,b)=> b[1].sales - a[1].sales).slice(0,20)
+        .map(([name,v])=> `<tr><td>${name}</td><td class="right">${v.qty}</td><td class="right">$ ${v.sales.toFixed(2)}</td><td class="right">$ ${v.profit.toFixed(2)}</td></tr>`)
+        .join('');
+      topBody.innerHTML = rows || '<tr><td colspan="4">No data</td></tr>';
+      const tc = document.getElementById('d-top-count'); if (tc) tc.textContent = Object.keys(agg).length;
+    }
+  } catch(e){ console.error('initDashboard failed', e); }
+}
+</script>
+
+  <section id="view-report-all" class="view">
+    <div class="card">
+      <h2>📊 <span data-i18n="report_all">Reports (All-in-One)</span></h2>
+      <div class="grid three gap">
+        <div>
+          <label>Filter Mode</label>
+          <select id="aof-filter-mode" class="input">
+            <option value="range">Date Range</option>
+            <option value="month">Month</option>
+            <option value="year">Year</option>
+          </select>
+        </div>
+        <div>
+          <label>Date From → To / Month / Year</label>
+          <div class="row gap">
+            <input id="aof-date-from" type="date" class="input">
+            <input id="aof-date-to" type="date" class="input">
+            <input id="aof-month" type="month" class="input" style="display:none">
+            <input id="aof-year" type="number" min="2000" max="2100" class="input" placeholder="2025" style="display:none">
+          </div>
+        </div>
+        <div>
+          <label>Style</label>
+          <select id="aof-style" class="input">
+            <option value="simple">A) Simple Table</option>
+            <option value="summary">B) Table + Summary</option>
+            <option value="group">C) Grouped (Customer/Seller/Product)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row gap mt">
+        <button class="btn" id="aof-generate">Generate</button>
+        <button class="btn ghost" id="aof-export">Export CSV</button>
+        <button class="btn ghost" id="aof-print">Print / PDF</button>
+      </div>
+
+      <div class="kpi grid four mt" id="aof-kpi"></div>
+      <div id="aof-charts" class="grid two gap mt"></div>
+
+      <div class="tabs mt" id="aof-tabs">
+        <button class="tab" data-tab="sales">Sales</button>
+        <button class="tab" data-tab="purchase">Purchase</button>
+        <button class="tab" data-tab="expense">Expense</button>
+        <button class="tab" data-tab="stock">Stock</button>
+      </div>
+
+      <div id="aof-tables" class="mt">
+        <div class="tabpane active" data-tab="sales"><table class="table" id="aof-sales"></table></div>
+        <div class="tabpane" data-tab="purchase"><table class="table" id="aof-purchase"></table></div>
+        <div class="tabpane" data-tab="expense"><table class="table" id="aof-expense"></table></div>
+        <div class="tabpane" data-tab="stock"><table class="table" id="aof-stock"></table></div>
+      </div>
+    </div>
+  </section>
+
+
+</body></html>
